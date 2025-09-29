@@ -12,7 +12,7 @@ inputs:
     description: ARN of the role to assume.
   profile-name:
     required: true
-    description: Name of profile to be created. Allowed: letters, numbers, ., _, -
+    description: 'Name of profile to be created. Allowed: letters, numbers, ., _, -'
   region:
     required: false
     description: AWS region to use.
