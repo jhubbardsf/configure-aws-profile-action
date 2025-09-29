@@ -1,0 +1,55 @@
+name: Test Action
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-action:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Test invalid profile name
+        id: test-invalid
+        continue-on-error: true
+        uses: ./
+        with:
+          role-arn: arn:aws:iam::123456789012:role/test-role
+          profile-name: invalid@profile
+          region: us-east-1
+
+      - name: Verify invalid profile fails
+        if: steps.test-invalid.outcome == 'success'
+        run: |
+          echo "Expected test-invalid to fail but it succeeded"
+          exit 1
+
+      - name: Test empty role-arn
+        id: test-empty-arn
+        continue-on-error: true
+        uses: ./
+        with:
+          role-arn: ""
+          profile-name: test-profile
+
+      - name: Verify empty ARN fails
+        if: steps.test-empty-arn.outcome == 'success'
+        run: |
+          echo "Expected test-empty-arn to fail but it succeeded"
+          exit 1
+
+  validate-yaml:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate action.yaml
+        run: |
+          # Basic YAML syntax validation
+          python3 -c "import yaml; yaml.safe_load(open('action.yaml'))"
+          echo "action.yaml is valid YAML"
